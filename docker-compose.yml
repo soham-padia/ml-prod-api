@@ -1,0 +1,44 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ml-prod-api:local
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: "local"
+      LOG_LEVEL: "INFO"
+      MODEL_PROVIDER: "stub"           # "transformer" | "baseline" | "stub"
+      MODEL_VERSION: "dev"
+      ARTIFACT_DIR: "/app/artifacts/dev"
+
+      # Security
+      CORS_ALLOW_ORIGINS: "http://localhost:3000,http://localhost:5173"
+      API_KEY: ""                      # set to enable API key auth
+      RATE_LIMIT_ENABLED: "true"
+      RATE_LIMIT_DEFAULT: "60/minute"
+    volumes:
+      - ./artifacts:/app/artifacts:ro
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz').read();\""]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    depends_on:
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus:v2.53.1
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  # Optional Grafana:
+  # grafana:
+  #   image: grafana/grafana:11.1.4
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - prometheus
