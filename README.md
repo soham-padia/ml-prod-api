@@ -10,7 +10,7 @@ A complete reference implementation of a **production-ready NLP toxicity classif
 
 - **Python:** 3.11 (recommended)  
   > Python 3.13 currently has known FastAPI / Pydantic annotation edge cases.
-- Tested on macOS and Linux
+- Tested on macOS
 
 ---
 
